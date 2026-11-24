@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시현가챠 💖</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: #fff0f6;
+    background-image: radial-gradient(#ffd1e3 2px, transparent 2px);
+    background-size: 28px 28px;
+    color: #6b2146;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 48px;
+  }
+
+  header { text-align: center; margin-bottom: 24px; }
+  header h1 {
+    font-size: 56px;
+    color: #ff4f93;
+    letter-spacing: 4px;
+    text-shadow: 3px 3px 0 #fff, 6px 6px 0 #ffb3d1;
+  }
+  header p { margin-top: 8px; font-size: 18px; }
+  #counter {
+    display: inline-block;
+    margin-top: 12px;
+    background: #ff4f93;
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-weight: bold;
+  }
+
+  /* ---------- 뽑기 기계 ---------- */
+  .machine { position: relative; width: 300px; }
+  .machine.shake { animation: shake 0.5s; }
+  @keyframes shake {
+    0%, 100% { transform: rotate(0); }
+    20% { transform: rotate(-3deg); }
+    40% { transform: rotate(3deg); }
+    60% { transform: rotate(-2deg); }
+    80% { transform: rotate(2deg); }
+  }
+
+  .dome {
+    position: relative;
+    width: 270px;
+    height: 270px;
+    margin: 0 auto -20px;
+    border-radius: 50%;
+    border: 10px solid #ff6fa5;
+    background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.95), rgba(255,230,242,0.6) 60%);
+    overflow: hidden;
+    z-index: 2;
+  }
+  .dome::after { /* 유리 반짝임 */
+    content: "";
+    position: absolute;
+    top: 30px; left: 40px;
+    width: 60px; height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    transform: rotate(-30deg);
+  }
+  .ball {
+    position: absolute;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: inset -4px -4px 0 rgba(0,0,0,0.08);
+    transition: transform 0.3s;
+  }
+  .machine.shake .ball { animation: jiggle 0.25s infinite alternate; }
+  @keyframes jiggle { to { transform: translate(4px, -6px) rotate(20deg); } }
+
+  .body {
+    position: relative;
+    background: #ff8fb8;
+    border-radius: 24px 24px 12px 12px;
+    padding: 34px 20px 20px;
+    box-shadow: 0 8px 0 #e0608f;
+    z-index: 1;
+  }
+  .plate {
+    background: #fff;
+    border-radius: 12px;
+    text-align: center;
+    padding: 8px;
+    font-weight: bold;
+    color: #ff4f93;
+    margin-bottom: 18px;
+  }
+  .controls { display: flex; align-items: center; justify-content: space-between; }
+
+  .knob {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    background: #fff;
+    border: 6px solid #ff4f93;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.6s ease-in-out;
+  }
+  .knob::before {
+    content: "";
+    position: absolute;
+    top: 50%; left: 8px; right: 8px;
+    height: 16px;
+    margin-top: -8px;
+    border-radius: 8px;
+    background: #ff4f93;
+  }
+  .knob:hover { box-shadow: 0 0 0 6px rgba(255,79,147,0.25); }
+  .knob.spin { transform: rotate(360deg); }
+  .knob-hint { font-size: 13px; text-align: center; margin-top: 6px; color: #fff; font-weight: bold; }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .knob:hover::before { animation: lever-wiggle 0.18s ease-in-out infinite alternate; }
+  }
+  @keyframes lever-wiggle {
+    from { transform: rotate(-10deg); }
+    to { transform: rotate(10deg); }
+  }
+
+  .exit {
+    width: 110px; height: 80px;
+    background: #6b2146;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .exit .drop {
+    position: absolute;
+    left: 50%; top: -60px;
+    width: 52px; height: 52px;
+    margin-left: -26px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    cursor: pointer;
+  }
+  .exit .drop.fall { animation: fall 0.6s forwards; }
+  @keyframes fall {
+    60% { top: 22px; }
+    80% { top: 14px; }
+    100% { top: 20px; }
+  }
+
+  .base {
+    width: 320px; height: 30px;
+    margin: 0 -10px;
+    background: #ff6fa5;
+    border-radius: 0 0 20px 20px;
+  }
+
+  /* ---------- 컬렉션 ---------- */
+  .collection { margin-top: 36px; width: 100%; max-width: 520px; text-align: center; }
+  .collection h2 { font-size: 20px; margin-bottom: 12px; }
+  .slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .slot {
+    background: #fff;
+    border: 3px dashed #ffb3d1;
+    border-radius: 16px;
+    padding: 12px 4px;
+    font-size: 13px;
+    color: #c98aa8;
+    min-height: 76px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .slot .mini {
+    width: 30px; height: 30px; border-radius: 50%;
+    margin-bottom: 6px; border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #ffd1e3;
+  }
+  .slot.got { border-style: solid; border-color: #ff8fb8; color: #6b2146; cursor: pointer; }
+  .slot.got:hover { transform: translateY(-3px); }
+  .slot.got.hidden-slot { border-color: #f5c542; background: #fffbe8; }
+
+  #reset {
+    display: none;
+    margin-top: 20px;
+    background: #ff4f93; color: #fff;
+    border: none; border-radius: 999px;
+    padding: 12px 24px; font-size: 16px; font-weight: bold;
+    cursor: pointer;
+  }
+  #complete { display: none; margin-top: 16px; font-size: 22px; font-weight: bold; color: #ff4f93; }
+
+  /* ---------- 캡슐 열기 창 ---------- */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(107,33,70,0.55);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 10;
+    padding: 16px;
+  }
+  .overlay.show { display: flex; }
+  .overlay.legend { background: radial-gradient(circle, rgba(255,215,90,0.75), rgba(107,33,70,0.85)); }
+
+  .stage { position: relative; width: 340px; height: 380px; }
+  .half {
+    position: absolute; left: 50%;
+    width: 140px; height: 70px;
+    margin-left: -70px;
+    border: 4px solid #fff;
+    transition: transform 0.6s ease-out, opacity 0.6s;
+    z-index: 3;
+  }
+  .half.top { top: 120px; border-radius: 70px 70px 0 0; border-bottom: none; }
+  .half.bottom { top: 190px; border-radius: 0 0 70px 70px; background: #fff !important; border-top: 2px dashed #ffb3d1; }
+  .stage.open .half.top { transform: translate(-120px, -160px) rotate(-40deg); opacity: 0; }
+  .stage.open .half.bottom { transform: translate(120px, 160px) rotate(40deg); opacity: 0; }
+
+  .card {
+    position: absolute; inset: 0;
+    background: #fff;
+    border-radius: 28px;
+    border: 5px solid #ff8fb8;
+    padding: 32px 24px;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transform: scale(0.3);
+    opacity: 0;
+    transition: transform 0.45s cubic-bezier(.2,1.6,.4,1) 0.25s, opacity 0.3s 0.25s;
+    box-shadow: 0 12px 0 rgba(0,0,0,0.12);
+  }
+  .stage.open .card { transform: scale(1); opacity: 1; }
+  .card .label {
+    background: #ffe0ee; color: #ff4f93;
+    padding: 4px 14px; border-radius: 999px;
+    font-size: 14px; font-weight: bold; letter-spacing: 1px;
+  }
+  .card h3 { font-size: 30px; margin: 18px 0 12px; line-height: 1.3; }
+  .card p { font-size: 17px; line-height: 1.6; }
+  .card button {
+    margin-top: 22px;
+    background: #ff4f93; color: #fff;
+    border: none; border-radius: 999px;
+    padding: 10px 22px; font-size: 15px; font-weight: bold;
+    cursor: pointer;
+  }
+
+  /* 히든(전설) 캡슐 */
+  .card.legend {
+    border: 6px solid transparent;
+    background: linear-gradient(#fffdf2, #fffdf2) padding-box,
+                linear-gradient(135deg, #ff6fa5, #f5c542, #7ad7f0, #c58cff, #ff6fa5) border-box;
+  }
+  .card.legend .label { background: #f5c542; color: #fff; animation: blink 0.8s infinite alternate; }
+  .card.legend h3 { color: #d4a017; text-shadow: 2px 2px 0 #fff3c4; }
+  @keyframes blink { to { box-shadow: 0 0 14px #f5c542; } }
+
+  .sparkle {
+    position: fixed; top: -40px;
+    font-size: 24px;
+    pointer-events: none;
+    z-index: 11;
+    animation: rain linear forwards;
+  }
+  @keyframes rain { to { transform: translateY(110vh) rotate(360deg); } }
+  .cursor-heart {
+    position: fixed;
+    pointer-events: none;
+    z-index: 20;
+    font-size: 16px;
+    line-height: 1;
+    transform: translate(-50%, -50%);
+    animation: heart-pop 0.7s ease-out forwards;
+  }
+  @keyframes heart-pop {
+    20% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+    100% { opacity: 0; transform: translate(calc(-50% + 12px), calc(-50% - 24px)) scale(0.65) rotate(25deg); }
+  }
+
+  footer { margin-top: 40px; font-size: 13px; color: #c98aa8; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>시현가챠</h1>
+  <p>레버를 돌려서 김시현을 하나씩 뽑아보세요! 💖</p>
+  <span id="counter">0 / 8</span>
+</header>
+
+<div class="machine" id="machine">
+  <div class="dome" id="dome"></div>
+  <div class="body">
+    <div class="plate">♥ 1회 무료 ♥ 꽝 없음 ♥</div>
+    <div class="controls">
+      <div>
+        <div class="knob" id="knob" title="레버 돌리기"></div>
+        <div class="knob-hint">돌려줘!</div>
+      </div>
+      <div class="exit" id="exit"></div>
+    </div>
+  </div>
+  <div class="base"></div>
+</div>
+
+<section class="collection">
+  <h2>🎀 나의 시현 컬렉션 🎀</h2>
+  <div class="slots" id="slots"></div>
+  <div id="complete">🎉 컬렉션 완성! 이제 시현을 다 알았어요 🎉</div>
+  <button id="reset">처음부터 다시 뽑기</button>
+</section>
+
+<div class="overlay" id="overlay">
+  <div class="stage" id="stage">
+    <div class="card" id="card">
+      <span class="label" id="cardLabel"></span>
+      <h3 id="cardTitle"></h3>
+      <p id="cardDesc"></p>
+      <button id="closeBtn">컬렉션에 넣기</button>
+    </div>
+    <div class="half top" id="halfTop"></div>
+    <div class="half bottom"></div>
+  </div>
+</div>
+
+<footer>© 시현가챠 · Business Programming Week 11</footer>
+
+<script>
+  // 캡슐 목록 (나오는 순서대로)
+  const capsules = [
+    { label: "NAME", short: "이름", title: "김시현", desc: "시현가챠의 주인공!<br>뽑아줘서 고마워요 💕", color: "#ff8fb8" },
+    { label: "✨ HIDDEN ✨", short: "히든", title: "사실 난 공주임 👑", desc: "축하해요! 전설 등급 캡슐 등장!<br>(출현 확률 0.01%)", color: "#f5c542", hidden: true },
+    { label: "MAJOR", short: "학과", title: "한남대학교<br>경영정보학과", desc: "경영도 하고 코딩도 하는 중 💻", color: "#c58cff" },
+    { label: "HOBBY 1", short: "취미 1", title: "햄스터(먼지)<br>만지기 🐹", desc: "먼지의 말랑함 측정 담당.<br>하루 권장량은 무제한", color: "#ffb3d1" },
+    { label: "HOBBY 2", short: "취미 2", title: "쉬인 쇼핑하기 🛍️", desc: "장바구니는 언제나 만석", color: "#7ad7f0" },
+    { label: "HOBBY 3", short: "취미 3", title: "밥 먹으면서<br>유튜브 보기 📺", desc: "영상 고르다 밥이 식는 건 국룰", color: "#9be3b1" },
+    { label: "FAVORITE FOOD", short: "음식", title: "요거트 찹쌀떡 🍡", desc: "쫀득 + 상큼 = 행복 그 자체", color: "#ffd59e" },
+    { label: "MOTTO", short: "좌우명", title: "나의 좌우명", desc: "세상은 호락호락하지 않다.<br>괜찮다, 나도 호락호락하지 않으니까ㅋ<br>(후덜덜)", color: "#ff6f6f" }
+  ];
+
+  let count = 0;       // 지금까지 뽑은 개수
+  let busy = false;    // 뽑는 중에는 레버를 다시 못 누르게
+
+  const dome = document.getElementById("dome");
+  const machine = document.getElementById("machine");
+  const knob = document.getElementById("knob");
+  const exit = document.getElementById("exit");
+  const slots = document.getElementById("slots");
+  const counter = document.getElementById("counter");
+  const overlay = document.getElementById("overlay");
+  const stage = document.getElementById("stage");
+  const card = document.getElementById("card");
+
+  let lastHeartPosition = null;
+  document.addEventListener("pointermove", event => {
+    if (event.pointerType !== "mouse") return;
+    if (lastHeartPosition) {
+      const dx = event.clientX - lastHeartPosition.x;
+      const dy = event.clientY - lastHeartPosition.y;
+      if (dx * dx + dy * dy < 324) return;
+    }
+
+    lastHeartPosition = { x: event.clientX, y: event.clientY };
+    const heart = document.createElement("span");
+    heart.className = "cursor-heart";
+    heart.setAttribute("aria-hidden", "true");
+    heart.textContent = "♥";
+    heart.style.left = `${event.clientX}px`;
+    heart.style.top = `${event.clientY}px`;
+    heart.style.color = ["#ff4f93", "#ff8fb8", "#c58cff"][Math.floor(Math.random() * 3)];
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 700);
+  });
+
+  // 유리 돔 안에 캡슐 공 채우기
+  function fillDome() {
+    dome.querySelectorAll(".ball").forEach(b => b.remove());
+    const left = capsules.length - count;
+    for (let i = 0; i < left + 4; i++) {
+      const ball = document.createElement("div");
+      ball.className = "ball";
+      ball.style.background = capsules[i % capsules.length].color;
+      ball.style.left = (20 + Math.random() * 180) + "px";
+      ball.style.top = (110 + Math.random() * 110) + "px";
+      dome.appendChild(ball);
+    }
+  }
+
+  // 컬렉션 빈칸 그리기
+  function drawSlots() {
+    slots.innerHTML = "";
+    capsules.forEach((c, i) => {
+      const slot = document.createElement("div");
+      if (i < count) {
+        slot.className = "slot got" + (c.hidden ? " hidden-slot" : "");
+        slot.innerHTML = `<div class="mini" style="background:${c.color}"></div>${c.short}`;
+        slot.onclick = () => openCapsule(i);
+      } else {
+        slot.className = "slot";
+        slot.textContent = "?";
+      }
+      slots.appendChild(slot);
+    });
+    counter.textContent = `${count} / ${capsules.length}`;
+    const done = count === capsules.length;
+    document.getElementById("complete").style.display = done ? "block" : "none";
+    document.getElementById("reset").style.display = done ? "inline-block" : "none";
+  }
+
+  // 레버 돌리기
+  knob.addEventListener("click", () => {
+    if (busy || count >= capsules.length) return;
+    busy = true;
+    const c = capsules[count];
+
+    knob.classList.remove("spin");
+    void knob.offsetWidth;          // 애니메이션 다시 시작하기 위한 트릭
+    knob.classList.add("spin");
+    machine.classList.add("shake");
+
+    setTimeout(() => {
+      machine.classList.remove("shake");
+      exit.innerHTML = "";
+      const drop = document.createElement("div");
+      drop.className = "drop fall";
+      drop.style.background = `linear-gradient(${c.color} 50%, #fff 50%)`;
+      exit.appendChild(drop);
+      setTimeout(() => openCapsule(count), 700);
+    }, 600);
+  });
+
+  // 캡슐 열기
+  function openCapsule(i) {
+    const c = capsules[i];
+    document.getElementById("cardLabel").textContent = c.label;
+    document.getElementById("cardTitle").innerHTML = c.title;
+    document.getElementById("cardDesc").innerHTML = c.desc;
+    document.getElementById("halfTop").style.background = c.color;
+    card.style.borderColor = c.hidden ? "" : c.color;
+    card.classList.toggle("legend", !!c.hidden);
+    overlay.classList.toggle("legend", !!c.hidden);
+
+    stage.classList.remove("open");
+    overlay.classList.add("show");
+    setTimeout(() => stage.classList.add("open"), 400);
+    if (c.hidden) sparkleRain();
+  }
+
+  // 히든 캡슐 반짝이 비
+  function sparkleRain() {
+    const items = ["✨", "👑", "💖", "⭐", "💎"];
+    for (let i = 0; i < 40; i++) {
+      const s = document.createElement("span");
+      s.className = "sparkle";
+      s.textContent = items[i % items.length];
+      s.style.left = Math.random() * 100 + "vw";
+      s.style.animationDuration = (2 + Math.random() * 2) + "s";
+      s.style.animationDelay = Math.random() * 0.8 + "s";
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 5000);
+    }
+  }
+
+  // 컬렉션에 넣기 (창 닫기)
+  document.getElementById("closeBtn").addEventListener("click", () => {
+    overlay.classList.remove("show", "legend");
+    if (busy) {
+      count++;
+      busy = false;
+      exit.innerHTML = "";
+      fillDome();
+      drawSlots();
+    }
+  });
+
+  // 처음부터 다시
+  document.getElementById("reset").addEventListener("click", () => {
+    count = 0;
+    fillDome();
+    drawSlots();
+  });
+
+  fillDome();
+  drawSlots();
+</script>
+</body>
+</html>
